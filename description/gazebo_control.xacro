@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- 
+    Gazebo ²îËÙÇý¶¯¿ØÖÆ²å¼þÅäÖÃ
+    ÓÃÓÚÔÚ Gazebo ·ÂÕæÖÐ¿ØÖÆ²î·ÖÇý¶¯ÂÖÊ½»úÆ÷ÈË
+ -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <gazebo>
+        <!-- ²îËÙÇý¶¯²å¼þ£ºlibgazebo_ros_diff_drive.so -->
+        <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so" >
+
+            <!-- ×óÂÖ¹Ø½ÚÃû³Æ -->
+            <left_joint>left_wheel_joint</left_joint>
+            <!-- ÓÒÂÖ¹Ø½ÚÃû³Æ -->
+            <right_joint>right_wheel_joint</right_joint>
+
+            <!-- ÂÖ¾à£ºÁ½ÂÖÖ®¼äµÄ¾àÀë = 0.175 * 2 = 0.35m -->
+            <wheel_separation>0.35</wheel_separation>
+            <!-- ÂÖ×ÓÖ±¾¶ = 2 * °ë¾¶(0.075) = 0.15m -->
+            <wheel_diameter>0.15</wheel_diameter>
+
+            <!-- ×î´óÂÖ×Ó½ÇËÙ¶È (rad/s) -->
+            <max_wheel_velocity>200</max_wheel_velocity>
+            <!-- ×î´óÂÖ×Ó½Ç¼ÓËÙ¶È (rad/s?) -->
+            <max_wheel_acceleration>100</max_wheel_acceleration>
+
+            <!-- Àï³Ì¼Æ×ø±êÏµ -->
+            <odometry_frame>odom</odometry_frame>
+            <!-- »úÆ÷ÈË»ù×ù×ø±êÏµ -->
+            <robot_base_frame>base_link</robot_base_frame>
+
+            <!-- ·¢²¼Àï³Ì¼Æ»°Ìâ -->
+            <publish_odom>true</publish_odom>
+            <!-- ·¢²¼Àï³Ì¼Æ TF ±ä»» -->
+            <publish_odom_tf>true</publish_odom_tf>
+            <!-- ·¢²¼ÂÖ×Ó TF ±ä»» -->
+            <publish_wheel_tf>true</publish_wheel_tf>
+
+        </plugin>
+    </gazebo>
+
+</robot>

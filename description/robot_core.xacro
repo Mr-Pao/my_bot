@@ -1,8 +1,41 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- 
+    机器人核心描述文件 - Robot Core Description
+    这个文件定义了一个三轮差分驱动机器人的结构
+    
+    机器人结构：
+    - 底盘 (chassis)：白色长方体
+    - 左驱动轮 (left_wheel)：蓝色圆柱
+    - 右驱动轮 (right_wheel)：蓝色圆柱  
+    - 万向轮 (caster_wheel)：黑色球体
+    
+    坐标系说明：
+    - base_link 是机器人的根坐标系
+    - 所有尺寸单位均为米(m)
+ -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gazebo="http://schemas.osg.org/schemas/ogre/gazebo">
 
+    <!-- 包含惯性参数宏定义文件 -->
     <xacro:include filename="inertial_macros.xacro" />
+    
+    <!-- Gazebo 材质配置 - 用于在 Gazebo 仿真中显示颜色 -->
+    <gazebo reference="chassis">
+        <material>Gazebo/White</material>
+    </gazebo>
+    
+    <gazebo reference="left_wheel">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    
+    <gazebo reference="right_wheel">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    
+    <gazebo reference="caster_wheel">
+        <material>Gazebo/Black</material>
+    </gazebo>
 
+    <!-- 视觉材质定义 - 用于 RViz 等可视化工具 -->
     <material name="white">
         <color rgba="1 1 1 1" />
     </material>
@@ -19,104 +52,172 @@
         <color rgba="0 0 0 1"/>
     </material>
 
-    <!-- Base link -->
-
+    <!-- ==================== Base Link (基础坐标系) ==================== -->
+    <!-- base_link 是机器人的根坐标系，作为整个机器人的参考点 -->
     <link name="base_link">
-    
+        <!-- 空链接，仅作为坐标系参考 -->
     </link>
 
+    <!-- ==================== Chassis Joint (底盘关节) ==================== -->
+    <!-- 固定关节，将底盘连接到 base_link -->
     <joint name="chassis_joint" type="fixed">
+        <!-- 父链接：base_link，子链接：chassis -->
         <parent link="base_link" />
         <child link="chassis" />
+        <!-- 底盘相对于 base_link 的偏移 -->
         <origin xyz="-0.1 0 0" />
     </joint>
 
-    <!-- Chassis link -->
-
+    <!-- ==================== Chassis Link (底盘链接) ==================== -->
+    <!-- 机器人的主体部分，承载所有其他组件 -->
     <link name="chassis">
+        <!-- 视觉属性 - 定义机器人在可视化中的外观 -->
         <visual>
+            <!-- 视觉原点相对于 link 原点的偏移 -->
             <origin xyz="0.15 0 0.075" />
             <geometry>
+                <!-- 长方体尺寸：长0.3m x 宽0.3m x 高0.15m -->
                 <box size="0.3 0.3 0.15"/>
             </geometry>
+            <!-- 使用白色材质 -->
             <material name="white" />
         </visual>
+        
+        <!-- 碰撞属性 - 定义机器人在物理仿真中的碰撞形状 -->
         <collision>
+            <!-- 碰撞原点与视觉原点一致 -->
             <origin xyz="0.15 0 0.075" />
             <geometry>
+                <!-- 碰撞形状与视觉形状一致 -->
                 <box size="0.3 0.3 0.15"/>
             </geometry>
+            <!-- 碰撞体材质 -->
+            <material name="white" />
         </collision>
-        <xacro:box_inertial mass="1.5" x="0.3" y="0.3" z="0.15" />
+        
+        <!-- 惯性属性 - 定义机器人的物理惯性参数 -->
+        <!-- 惯性原点在几何中心，质量1.5kg -->
+        <inertial>
+            <origin xyz="0.15 0 0.075" rpy="0 0 0" />
+            <mass value="1.5" />
+            <!-- ixx/iyy/izz: 绕x/y/z轴的转动惯量，ixy/ixz/iyz: 惯性积 -->
+            <inertia
+                ixx="${1.5 / 12.0 * (0.3*0.3 + 0.15*0.15)}"
+                iyy="${1.5 / 12.0 * (0.3*0.3 + 0.15*0.15)}"
+                izz="${1.5 / 12.0 * (0.3*0.3 + 0.3*0.3)}"
+                ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
     </link>
 
+    <!-- ==================== Left Wheel Joint (左轮关节) ==================== -->
+    <!-- 连续旋转关节，允许轮子绕轴转动 -->
     <joint name="left_wheel_joint" type="continuous">
+        <!-- 父链接：base_link，子链接：left_wheel -->
         <parent link="base_link" />
         <child link="left_wheel" />
+        <!-- 位置：y=0.175m，旋转：绕x轴-pi/2 -->
         <origin xyz="0 0.175 0" rpy="-${pi/2} 0 0" />
+        <!-- 旋转轴：绕z轴 -->
         <axis xyz="0 0 1" />
     </joint>
 
+    <!-- ==================== Left Wheel Link (左轮链接) ==================== -->
+    <!-- 左侧驱动轮，由电机驱动 -->
     <link name="left_wheel">
         <visual>
             <geometry>
-                <cylinder radius="0.075" length="0.04" />
+                <!-- 圆柱体：半径0.05m，长度0.04m -->
+                <cylinder radius="0.05" length="0.04" />
             </geometry>
+            <!-- 使用蓝色材质 -->
             <material name="blue" />
         </visual>
         <collision>
             <geometry>
-                <cylinder radius="0.075" length="0.04" />
+                <!-- 碰撞形状与视觉形状一致 -->
+                <cylinder radius="0.05" length="0.04" />
             </geometry>
+            <!-- 碰撞体材质 -->
+            <material name="blue" />
         </collision>
-        <xacro:cylinder_inertial mass="0.1" radius="0.075" length="0.04" />
+        <!-- 使用宏定义计算惯性参数 -->
+        <xacro:cylinder_inertial mass="0.1" radius="0.05" length="0.04" />
     </link>
 
-    <!-- Right wheel link -->
-
+    <!-- ==================== Right Wheel Joint (右轮关节) ==================== -->
+    <!-- 连续旋转关节，允许右轮绕轴转动 -->
     <joint name="right_wheel_joint" type="continuous">
+        <!-- 父链接：base_link，子链接：right_wheel -->
         <parent link="base_link" />
         <child link="right_wheel" />
+        <!-- 位置：y=-0.175m，旋转：绕x轴pi/2 -->
         <origin xyz="0 -0.175 0" rpy="${pi/2} 0 0" />
+        <!-- 旋转轴：绕-z轴（与左轮相反） -->
         <axis xyz="0 0 -1" />
     </joint>
 
+    <!-- ==================== Right Wheel Link (右轮链接) ==================== -->
+    <!-- 右侧驱动轮，由电机驱动 -->
     <link name="right_wheel"> 
         <visual>
             <geometry>
-                <cylinder radius="0.075" length="0.04" />
+                <!-- 圆柱体：半径0.05m，长度0.04m -->
+                <cylinder radius="0.05" length="0.04" />
             </geometry>
+            <!-- 使用蓝色材质 -->
             <material name="blue" />
         </visual>
         <collision>
             <geometry>
-                <cylinder radius="0.075" length="0.04" />
+                <!-- 碰撞形状与视觉形状一致 -->
+                <cylinder radius="0.05" length="0.04" />
             </geometry>
+            <!-- 碰撞体材质 -->
+            <material name="blue" />
         </collision>
-        <xacro:cylinder_inertial mass="0.1" radius="0.075" length="0.04" />
+        <!-- 使用宏定义计算惯性参数 -->
+        <xacro:cylinder_inertial mass="0.1" radius="0.05" length="0.04" />
     </link>
 
-    <!-- 万向轮 link -->
+    <!-- ==================== Caster Wheel Joint (万向轮关节) ==================== -->
+    <!-- 固定关节，将万向轮连接到底盘前端 -->
     <joint name="caster_wheel_joint" type="fixed">
+        <!-- 父链接：chassis，子链接：caster_wheel -->
         <parent link="chassis" />
         <child link="caster_wheel" />
+        <!-- 万向轮位置：底盘前端 x=0.24m -->
         <origin xyz="0.24 0 0" />
     </joint>
 
+    <!-- ==================== Caster Wheel Link (万向轮链接) ==================== -->
+    <!-- 万向轮，用于支撑和转向，无动力 -->
     <link name="caster_wheel">
         <visual>
             <geometry>
+                <!-- 球体：半径0.05m -->
                 <sphere radius="0.05" />
             </geometry>
+            <!-- 使用黑色材质 -->
             <material name="black" />
         </visual>
         <collision>
             <geometry>
+                <!-- 碰撞形状与视觉形状一致 -->
                 <sphere radius="0.05" />
             </geometry>
+            <!-- 碰撞体材质 -->
+            <material name="black" />
         </collision>
+        <!-- 使用宏定义计算惯性参数 -->
         <xacro:sphere_inertial mass="0.05" radius="0.05" />
     </link>
 
+    <!-- 万向轮在Gazebo中的材质 -->
+    <gazebo reference="caster_wheel" >
+        <!-- 使用黑色材质 -->
+        <material name="black" />
+        <mu1 value="0.001" />
+        <mu2 value="0.001" />
+    </gazebo>
 
 </robot>
