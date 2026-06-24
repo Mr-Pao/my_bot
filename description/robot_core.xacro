@@ -35,6 +35,10 @@
         <material>Gazebo/Black</material>
     </gazebo>
 
+    <gazebo reference="laser_frame">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
     <!-- 视觉材质定义 - 用于 RViz 等可视化工具 -->
     <material name="white">
         <color rgba="1 1 1 1" />
@@ -50,6 +54,10 @@
 
     <material name="black">
         <color rgba="0 0 0 1"/>
+    </material>
+
+    <material name="red">
+        <color rgba="1 0 0 1"/>
     </material>
 
     <!-- ==================== Base Link (基础坐标系) ==================== -->
