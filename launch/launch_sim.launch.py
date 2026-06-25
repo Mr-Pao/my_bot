@@ -24,7 +24,7 @@ def generate_launch_description():
 
     world_arg = DeclareLaunchArgument(
         'world',
-        default_value=[os.path.join(get_package_share_directory(package_name), 'worlds', 'empty.world')],
+        default_value=[os.path.join(get_package_share_directory(package_name), 'worlds', 'custom_room.world')],
         description='World to load'
         )
 
